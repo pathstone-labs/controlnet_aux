@@ -81,6 +81,23 @@ def draw_bodypose(canvas: np.ndarray, keypoints: List[Keypoint]) -> np.ndarray:
         The function expects the x and y coordinates of the keypoints to be normalized between 0 and 1.
     """
     H, W, C = canvas.shape
+
+    
+    if max(W, H) < 500:
+        ratio = 1.0
+    elif max(W, H) >= 500 and max(W, H) < 1000:
+        ratio = 2.0
+    elif max(W, H) >= 1000 and max(W, H) < 2000:
+        ratio = 3.0
+    elif max(W, H) >= 2000 and max(W, H) < 3000:
+        ratio = 4.0
+    elif max(W, H) >= 3000 and max(W, H) < 4000:
+        ratio = 5.0
+    elif max(W, H) >= 4000 and max(W, H) < 5000:
+        ratio = 6.0
+    else:
+        ratio = 7.0
+
     stickwidth = 4
 
     limbSeq = [
@@ -108,7 +125,7 @@ def draw_bodypose(canvas: np.ndarray, keypoints: List[Keypoint]) -> np.ndarray:
         mY = np.mean(Y)
         length = ((X[0] - X[1]) ** 2 + (Y[0] - Y[1]) ** 2) ** 0.5
         angle = math.degrees(math.atan2(X[0] - X[1], Y[0] - Y[1]))
-        polygon = cv2.ellipse2Poly((int(mY), int(mX)), (int(length / 2), stickwidth), int(angle), 0, 360, 1)
+        polygon = cv2.ellipse2Poly((int(mY), int(mX)), (int(length / 2), int(stickwidth * ratio)), int(angle), 0, 360, 1)
         cv2.fillConvexPoly(canvas, polygon, [int(float(c) * 0.6) for c in color])
 
     for keypoint, color in zip(keypoints, colors):
@@ -118,7 +135,7 @@ def draw_bodypose(canvas: np.ndarray, keypoints: List[Keypoint]) -> np.ndarray:
         x, y = keypoint.x, keypoint.y
         x = int(x * W)
         y = int(y * H)
-        cv2.circle(canvas, (int(x), int(y)), 4, color, thickness=-1)
+        cv2.circle(canvas, (int(x), int(y)), int(4 * ratio), color, thickness=-1)
 
     return canvas
 
